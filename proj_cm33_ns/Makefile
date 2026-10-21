@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+# (c) 2025-2026, Infineon Technologies AG, or an affiliate of Infineon
 # Technologies AG.  SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,8 +38,8 @@ APPNAME=proj_cm33_ns
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
-# Set BT feature baudrate to 3M 
-DEFINES+=CYBSP_BT_PLATFORM_CFG_BAUD_FEATURE=3000000 
+# Set BT feature baudrate to 3M
+DEFINES+=CYBSP_BT_PLATFORM_CFG_BAUD_FEATURE=3000000
 
 # Use application as BLE NODE
 USE_BLE_NODE = 0
@@ -61,7 +61,7 @@ USE_BLE_NODE = 0
 COMPONENTS+=
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
-DISABLE_COMPONENTS= 
+DISABLE_COMPONENTS=
 
 CORE=CM33
 CORE_NAME=CM33_0
@@ -126,7 +126,7 @@ COMPONENTS+=FREERTOS WICED_BLE BLE_NODE
 # Add additional defines to the build process (without a leading -D).
 DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF
 
-# Ignore WiFi and MQTT libraries if app is used in BLE_NODE 
+# Ignore WiFi and MQTT libraries if app is used in BLE_NODE
 # configuration
 CY_IGNORE+=$(SEARCH_wifi-core-freertos-lwip-mbedtls)/
 CY_IGNORE+=$(SEARCH_wifi-host-driver)/
@@ -139,6 +139,8 @@ CY_IGNORE+=$(SEARCH_lwip)/
 CY_IGNORE+=$(SEARCH_lwip-network-interface-integration)/
 CY_IGNORE+=$(SEARCH_lwip-freertos-integration)/
 CY_IGNORE+=$(SEARCH_ifx-mbedtls)/
+CY_IGNORE+=$(SEARCH_mbedtls)/
+CY_IGNORE+=$(SEARCH_mbedtls-pal)/
 CY_IGNORE+=$(SEARCH_cy-mbedtls-acceleration)/
 CY_IGNORE+=$(SEARCH_connectivity-utilities)/
 CY_IGNORE+=$(SEARCH_aws-iot-device-sdk-port)/
@@ -156,18 +158,18 @@ DEFINES+=IOT_GATEWAY
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF
+DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE
 
-# Default configuration of mbedtls library.
-DEFINES+=MBEDTLS_CONFIG_FILE='"mbedtls/mbedtls_config.h"'
-# PSA configuration of mbedtls library.
-DEFINES+=MBEDTLS_PSA_CRYPTO_CONFIG_FILE='"configs/ifx_psa_crypto_config.h"'
+# TF-PSA-Crypto (PSA Crypto API) configuration, required by mbedtls 4.x.
+DEFINES+=IFX_TF_PSA IFX_TF_PSA_CRYPTO
+DEFINES+=TF_PSA_CRYPTO_CONFIG_FILE='"configs/tf_psa_crypto_config.h"'
+DEFINES+=TF_PSA_CRYPTO_USER_CONFIG_FILE='"configs/tf_psa_crypto_user_config.h"'
 
 ifeq ($(TOOLCHAIN),LLVM_ARM)
 DEFINES+=CY_MQTT_EVENT_THREAD_STACK_SIZE=10*1024
 endif
 
-# Define the following macro in the application's Makefile to mandatorily disable the custom 
+# Define the following macro in the application's Makefile to mandatorily disable the custom
 # configuration header file.
 DEFINES += HTTP_DO_NOT_USE_CUSTOM_CONFIG
 endif
@@ -183,11 +185,11 @@ CY_APP_PATH=
 
 # Relative path to the shared repo location.
 #
-# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> 
-# field begins with $$ASSET_REPO$$, then the repo is deposited in the path 
-# specified by the CY_GETLIBS_SHARED_PATH variable. The default location is one 
+# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION>
+# field begins with $$ASSET_REPO$$, then the repo is deposited in the path
+# specified by the CY_GETLIBS_SHARED_PATH variable. The default location is one
 # directory level above the current app directory.
-# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the 
+# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the
 # directory name.
 CY_GETLIBS_SHARED_PATH=../..
 

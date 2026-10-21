@@ -13,7 +13,7 @@
 *
 *
 ********************************************************************************
-* (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+* (c) 2025-2026, Infineon Technologies AG, or an affiliate of Infineon
 * Technologies AG. All rights reserved.
 * This software, associated documentation and materials ("Software") is
 * owned by Infineon Technologies AG or one of its affiliates ("Infineon")
@@ -24,7 +24,7 @@
 * agreement applies, then any use, reproduction, modification, translation, or
 * compilation of this Software is prohibited without the express written
 * permission of Infineon.
-* 
+*
 * Disclaimer: UNLESS OTHERWISE EXPRESSLY AGREED WITH INFINEON, THIS SOFTWARE
 * IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING, BUT NOT LIMITED TO, ALL WARRANTIES OF NON-INFRINGEMENT OF
@@ -264,8 +264,14 @@ void mqtt_subscription_callback(cy_mqtt_publish_info_t *received_msg_info)
     const char *received_msg = received_msg_info->payload;
     int received_msg_len = received_msg_info->payload_len;
 
-    /* Data to be sent to the subscriber task queue. */
-    subscriber_data_t subscriber_q_data;
+    /* Data to be sent to the subscriber task queue. Fully initialized so no
+     * uninitialized fields are ever copied into the queue.
+     */
+    subscriber_data_t subscriber_q_data =
+    {
+        .cmd  = UPDATE_DEVICE_STATE,
+        .data = (uint8_t) current_device_state
+    };
 
     printf("  \nSubsciber: Incoming MQTT message received:\n"
            "    Publish topic name: %.*s\n"
@@ -281,12 +287,14 @@ void mqtt_subscription_callback(cy_mqtt_publish_info_t *received_msg_info)
                 STRNG_CMP_SUCCESS))
     {
         send_led_command(TURN_ON_USER_LED_CMD);
+        subscriber_q_data.data = DEVICE_ON_STATE;
     }
     else if ((strlen("TURN OFF USER LED") == received_msg_len) &&
              (strncmp("TURN OFF USER LED", received_msg, received_msg_len) ==
                      STRNG_CMP_SUCCESS))
     {
         send_led_command(TURN_OFF_USER_LED_CMD);
+        subscriber_q_data.data = DEVICE_OFF_STATE;
     }
 
     /* Send the command and data to subscriber task queue */
